@@ -11,7 +11,7 @@
     <!-- Plant Header / Title Page -->
     <header class="plant-header">
         <div class="plant-header-inner">
-            <p class="breadcrumb"><a href="{% url 'grimoire/plant' %}">← Grimoire</a></p>
+            <p class="breadcrumb"><a href="{% url 'grimoire:plant_detail' slug=plant.slug %}">← Grimoire</a></p>
             <div class="plant-title-block">
                 <h1 class="plant-scientific"><em>{{ plant.scientific_name }}</em></h1>
                 <p class="plant-common-names">
