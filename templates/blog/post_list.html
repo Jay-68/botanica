@@ -1,0 +1,129 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Journal — Botanica{% endblock %}
+{% block nav_blog %}active{% endblock %}
+{% block body_class %}blog-section{% endblock %}
+
+{% block content %}
+<div class="page-header blog-header">
+    <div class="page-header-inner">
+        <p class="page-label">The Journal</p>
+        <h1 class="page-title">Field Notes &amp; Essays</h1>
+        <p class="page-sub">Writing at the intersection of science, nature, and personal observation.</p>
+    </div>
+</div>
+
+<div class="blog-layout">
+    <!-- Sidebar -->
+    <aside class="blog-sidebar">
+        <div class="sidebar-section">
+            <form class="search-form" method="get" action="">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search entries…" class="search-input">
+                <button type="submit" class="search-btn">→</button>
+            </form>
+        </div>
+
+        {% if categories %}
+        <div class="sidebar-section">
+            <h3 class="sidebar-heading">Categories</h3>
+            <ul class="sidebar-list">
+                <li><a href="{% url 'blog:post_list' %}" class="sidebar-link {% if not request.GET.category %}active{% endif %}">All</a></li>
+                {% for cat in categories %}
+                <li><a href="{{ cat.get_absolute_url }}" class="sidebar-link">{{ cat.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if series_list %}
+        <div class="sidebar-section">
+            <h3 class="sidebar-heading">Series</h3>
+            <ul class="sidebar-list">
+                {% for s in series_list %}
+                <li><a href="{{ s.get_absolute_url }}" class="sidebar-link">{{ s.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if tags %}
+        <div class="sidebar-section">
+            <h3 class="sidebar-heading">Tags</h3>
+            <div class="tag-cloud">
+                {% for tag in tags %}
+                <a href="{{ tag.get_absolute_url }}" class="tag-pill">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+
+    <!-- Post Feed -->
+    <div class="blog-feed">
+        {% if search_query %}
+        <div class="search-notice">
+            Showing results for <em>"{{ search_query }}"</em>
+            — <a href="{% url 'blog:post_list' %}">clear</a>
+        </div>
+        {% endif %}
+
+        {% if posts %}
+            {% for post in posts %}
+            <article class="post-card {% if forloop.first %}post-card--featured{% endif %}">
+                {% if post.featured_image %}
+                <a href="{{ post.get_absolute_url }}" class="post-card-img-link">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-card-img">
+                </a>
+                {% endif %}
+                <div class="post-card-body">
+                    <div class="post-card-meta">
+                        {% if post.category %}
+                        <a href="{{ post.category.get_absolute_url }}" class="post-category">{{ post.category.name }}</a>
+                        <span class="meta-sep">·</span>
+                        {% endif %}
+                        {% if post.published_at %}
+                        <time class="post-date">{{ post.published_at|date:"j F Y" }}</time>
+                        <span class="meta-sep">·</span>
+                        {% endif %}
+                        <span class="reading-time">{{ post.reading_time }} min read</span>
+                    </div>
+
+                    <h2 class="post-card-title">
+                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                    </h2>
+
+                    {% if post.excerpt %}
+                    <p class="post-card-excerpt">{{ post.excerpt }}</p>
+                    {% endif %}
+
+                    <div class="post-card-footer">
+                        {% if post.tags.all %}
+                        <div class="post-tags">
+                            {% for tag in post.tags.all|slice:":3" %}
+                            <a href="{{ tag.get_absolute_url }}" class="tag-pill tag-pill--small">{{ tag.name }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if post.referenced_plants.all %}
+                        <div class="post-plants">
+                            🌿 {% for plant in post.referenced_plants.all|slice:":2" %}
+                            <a href="{{ plant.get_absolute_url }}" class="plant-ref-link">{{ plant.primary_common_name }}</a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <a href="{{ post.get_absolute_url }}" class="read-more-link">Read →</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p class="empty-icon">📜</p>
+                <p>No entries found{% if search_query %} for "{{ search_query }}"{% endif %}.</p>
+                {% if search_query %}<a href="{% url 'blog:post_list' %}">View all entries</a>{% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

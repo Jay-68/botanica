@@ -1,0 +1,108 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Grimoire — Botanical Archive{% endblock %}
+{% block nav_grimoire %}active{% endblock %}
+{% block body_class %}grimoire-section{% endblock %}
+
+{% block content %}
+<div class="page-header grimoire-header">
+    <div class="page-header-inner">
+        <div class="grimoire-emblem">⌘</div>
+        <p class="page-label">The Grimoire</p>
+        <h1 class="page-title">Botanical Archive</h1>
+        <p class="page-sub">A living compendium of plants — scientific, practical, and personal.</p>
+    </div>
+</div>
+
+<div class="grimoire-layout">
+
+    <!-- Controls -->
+    <div class="grimoire-controls">
+        <!-- Search -->
+        <form class="grimoire-search-form" method="get">
+            <div class="search-wrap">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, property, use…" class="search-input search-input--grimoire">
+                {% if active_property %}<input type="hidden" name="property" value="{{ active_property.slug }}">{% endif %}
+                <button type="submit" class="search-btn">Search</button>
+            </div>
+        </form>
+
+        <!-- Alphabet -->
+        <div class="alpha-nav">
+            <a href="{% url 'grimoire:plant_list' %}" class="alpha-link {% if not active_letter %}alpha-link--active{% endif %}">All</a>
+            {% for letter in alphabet %}
+            <a href="?letter={{ letter }}" class="alpha-link {% if active_letter == letter %}alpha-link--active{% endif %}">{{ letter }}</a>
+            {% endfor %}
+        </div>
+
+        <!-- Filters row -->
+        <div class="grimoire-filters">
+            <!-- Edibility filter -->
+            <div class="filter-group">
+                <span class="filter-label">Filter by use:</span>
+                <div class="filter-pills">
+                    <a href="{% url 'grimoire:plant_list' %}{% if search_query %}?q={{ search_query }}{% endif %}" class="filter-pill {% if not active_edibility %}filter-pill--active{% endif %}">All</a>
+                    {% for val, label in edibility_choices %}
+                    <a href="?edibility={{ val }}{% if search_query %}&q={{ search_query }}{% endif %}" class="filter-pill filter-pill--{{ val }} {% if active_edibility == val %}filter-pill--active{% endif %}">{{ label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Properties filter -->
+            {% if all_properties %}
+            <div class="filter-group">
+                <span class="filter-label">Properties:</span>
+                <div class="filter-pills">
+                    {% for prop in all_properties %}
+                    <a href="?property={{ prop.slug }}" class="filter-pill {% if active_property.slug == prop.slug %}filter-pill--active{% endif %}">{{ prop.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="grimoire-controls-footer">
+            <span class="plant-count">{{ plants.count }} entr{{ plants.count|pluralize:"y,ies" }}</span>
+            <a href="{% url 'grimoire:random_plant' %}" class="random-link">↻ Random plant</a>
+        </div>
+    </div>
+
+    <!-- Plant Grid -->
+    <div class="plant-grid">
+        {% for plant in plants %}
+        <a href="{{ plant.get_absolute_url }}" class="plant-card">
+            <div class="plant-card-image">
+                {% if plant.primary_image %}
+                <img src="{{ plant.primary_image.url }}" alt="{{ plant.scientific_name }}">
+                {% else %}
+                <div class="plant-card-placeholder">🌿</div>
+                {% endif %}
+                <span class="plant-card-edibility edibility--{{ plant.edibility }}">{{ plant.get_edibility_display }}</span>
+            </div>
+            <div class="plant-card-body">
+                <h3 class="plant-card-common">{{ plant.primary_common_name }}</h3>
+                <p class="plant-card-scientific"><em>{{ plant.scientific_name }}</em></p>
+                {% if plant.family %}
+                <p class="plant-card-family">{{ plant.family.name }}</p>
+                {% endif %}
+                {% if plant.properties.all %}
+                <div class="plant-card-props">
+                    {% for prop in plant.properties.all|slice:":3" %}
+                    <span class="prop-tag">{{ prop.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state empty-state--grimoire">
+            <p class="empty-icon">📜</p>
+            <p>No plants found{% if search_query %} for "{{ search_query }}"{% endif %}.</p>
+            <a href="{% url 'grimoire:plant_list' %}">View all plants</a>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

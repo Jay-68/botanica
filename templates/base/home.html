@@ -1,0 +1,50 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Botanica — A Botanical Journal & Grimoire{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+    <div class="hero-inner">
+        <div class="hero-ornament">✦ ── ✦ ── ✦</div>
+        <h1 class="hero-title">A Living Archive<br><em>of Botanical Knowledge</em></h1>
+        <p class="hero-sub">Field notes, plant lore, and botanical intelligence — gathered across seasons and landscapes.</p>
+        <div class="hero-actions">
+            <a href="{% url 'blog:post_list' %}" class="btn btn-primary">Read the Journal</a>
+            <a href="{% url 'grimoire:plant_list' %}" class="btn btn-ghost">Open the Grimoire</a>
+        </div>
+    </div>
+    <div class="hero-decoration">
+        <div class="leaf-motif leaf-1">⌘</div>
+        <div class="leaf-motif leaf-2">⌘</div>
+        <div class="leaf-motif leaf-3">⌘</div>
+    </div>
+</section>
+
+<section class="home-two-worlds">
+    <div class="world-card world-blog">
+        <div class="world-icon">📖</div>
+        <h2 class="world-title">The Journal</h2>
+        <p class="world-desc">Essays, field reflections, and plant studies. A narrative voice exploring the living world through prose.</p>
+        <a href="{% url 'blog:post_list' %}" class="world-link">Read Entries →</a>
+    </div>
+    <div class="world-divider">✦</div>
+    <div class="world-card world-grimoire">
+        <div class="world-icon">🌿</div>
+        <h2 class="world-title">The Grimoire</h2>
+        <p class="world-desc">A structured archive of plants — taxonomy, uses, field notes, and personal reflections. Knowledge made permanent.</p>
+        <a href="{% url 'grimoire:plant_list' %}" class="world-link">Browse Plants →</a>
+    </div>
+</section>
+
+<div class="home-separator"><span>✦ ── ✦</span></div>
+
+<section class="home-discover">
+    <h2 class="section-heading">Discover a Plant</h2>
+    <p class="section-sub">The grimoire contains multitudes. Begin anywhere.</p>
+    <a href="{% url 'grimoire:random_plant' %}" class="btn btn-outline btn-random">
+        <span>Open a Random Entry</span>
+        <span class="random-icon">↻</span>
+    </a>
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}
+{% block title %}{{ property.name }} — Grimoire{% endblock %}
+{% block nav_grimoire %}active{% endblock %}
+{% block body_class %}grimoire-section{% endblock %}
+{% block content %}
+<div class="page-header grimoire-header">
+    <div class="page-header-inner">
+        <p class="page-label"><a href="{% url 'grimoire:plant_list' %}">← Grimoire</a></p>
+        <h1 class="page-title">{{ property.name }}</h1>
+        <p class="page-sub">{{ property.get_category_display }}{% if property.description %} — {{ property.description }}{% endif %}</p>
+    </div>
+</div>
+<div class="grimoire-layout">
+    <div class="plant-grid">
+        {% for plant in plants %}
+        <a href="{{ plant.get_absolute_url }}" class="plant-card">
+            <div class="plant-card-image">
+                {% if plant.primary_image %}<img src="{{ plant.primary_image.url }}" alt="{{ plant.scientific_name }}">
+                {% else %}<div class="plant-card-placeholder">🌿</div>{% endif %}
+                <span class="plant-card-edibility edibility--{{ plant.edibility }}">{{ plant.get_edibility_display }}</span>
+            </div>
+            <div class="plant-card-body">
+                <h3 class="plant-card-common">{{ plant.primary_common_name }}</h3>
+                <p class="plant-card-scientific"><em>{{ plant.scientific_name }}</em></p>
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state"><p>No plants with this property yet.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

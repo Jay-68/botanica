@@ -1,0 +1,33 @@
+{% extends "base/base.html" %}
+{% block title %}{{ category.name }} — Journal{% endblock %}
+{% block nav_blog %}active{% endblock %}
+{% block body_class %}blog-section{% endblock %}
+{% block content %}
+<div class="page-header blog-header">
+    <div class="page-header-inner">
+        <p class="page-label"><a href="{% url 'blog:post_list' %}">← Journal</a></p>
+        <h1 class="page-title">{{ category.name }}</h1>
+        {% if category.description %}<p class="page-sub">{{ category.description }}</p>{% endif %}
+    </div>
+</div>
+<div class="blog-layout blog-layout--simple">
+    <div class="blog-feed">
+        {% for post in posts %}
+        <article class="post-card">
+            <div class="post-card-body">
+                <div class="post-card-meta">
+                    {% if post.published_at %}<time>{{ post.published_at|date:"j F Y" }}</time>{% endif %}
+                    <span class="meta-sep">·</span>
+                    <span>{{ post.reading_time }} min read</span>
+                </div>
+                <h2 class="post-card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+                {% if post.excerpt %}<p class="post-card-excerpt">{{ post.excerpt }}</p>{% endif %}
+                <a href="{{ post.get_absolute_url }}" class="read-more-link">Read →</a>
+            </div>
+        </article>
+        {% empty %}
+        <div class="empty-state"><p>No posts in this category yet.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

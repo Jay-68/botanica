@@ -1,0 +1,257 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ plant.scientific_name }} — Grimoire{% endblock %}
+{% block nav_grimoire %}active{% endblock %}
+{% block body_class %}grimoire-section plant-page{% endblock %}
+
+{% block content %}
+<div class="plant-full">
+
+    <!-- Plant Header / Title Page -->
+    <header class="plant-header">
+        <div class="plant-header-inner">
+            <p class="breadcrumb"><a href="{% url 'grimoire/plant' %}">← Grimoire</a></p>
+            <div class="plant-title-block">
+                <h1 class="plant-scientific"><em>{{ plant.scientific_name }}</em></h1>
+                <p class="plant-common-names">
+                    {% for name in plant.all_common_names %}
+                    {{ name }}{% if not forloop.last %} · {% endif %}
+                    {% endfor %}
+                </p>
+                {% if plant.family %}
+                <p class="plant-family-label">Family: <strong>{{ plant.family.name }}</strong>{% if plant.family.common_name %} ({{ plant.family.common_name }}){% endif %}</p>
+                {% endif %}
+            </div>
+
+            <!-- Properties -->
+            {% if plant.properties.all %}
+            <div class="plant-properties">
+                {% for prop in plant.properties.all %}
+                <a href="{% url 'grimoire:property' prop.slug %}" class="prop-badge prop-badge--{{ prop.category }}">{{ prop.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Edibility badge -->
+            <span class="edibility-badge edibility--{{ plant.edibility }}">{{ plant.get_edibility_display }}</span>
+        </div>
+
+        <!-- Primary Image -->
+        {% if plant.primary_image %}
+        <div class="plant-primary-image">
+            <img src="{{ plant.primary_image.url }}" alt="{{ plant.scientific_name }}">
+        </div>
+        {% endif %}
+    </header>
+
+    <!-- Table of Contents (inline nav) -->
+    <nav class="plant-toc">
+        <ul class="toc-list">
+            <li><a href="#overview" class="toc-link">Overview</a></li>
+            {% if plant.kingdom or plant.order %}<li><a href="#taxonomy" class="toc-link">Taxonomy</a></li>{% endif %}
+            {% if plant.morphology or plant.habitat %}<li><a href="#morphology" class="toc-link">Morphology & Habitat</a></li>{% endif %}
+            {% if has_practical %}<li><a href="#uses" class="toc-link">Uses & Preparation</a></li>{% endif %}
+            {% if plant.warnings %}<li><a href="#warnings" class="toc-link">⚠ Warnings</a></li>{% endif %}
+            {% if has_observational %}<li><a href="#observations" class="toc-link">Field Notes</a></li>{% endif %}
+            {% if images %}<li><a href="#gallery" class="toc-link">Gallery</a></li>{% endif %}
+            {% if has_symbolic %}<li><a href="#symbolic" class="toc-link">Symbolism</a></li>{% endif %}
+            {% if related_posts %}<li><a href="#writings" class="toc-link">Related Writings</a></li>{% endif %}
+        </ul>
+    </nav>
+
+    <div class="plant-content">
+
+        <!-- ── Section 1: Overview ───────────────────────────────────────── -->
+        <section id="overview" class="plant-section">
+            <div class="section-marker">✦ I</div>
+            <h2 class="plant-section-title">Overview</h2>
+            <div class="plant-prose">{{ plant.overview|linebreaks }}</div>
+        </section>
+
+        <!-- ── Section 2: Taxonomy ───────────────────────────────────────── -->
+        {% if plant.kingdom or plant.order or plant.genus %}
+        <section id="taxonomy" class="plant-section">
+            <div class="section-marker">✦ II</div>
+            <h2 class="plant-section-title">Taxonomy</h2>
+            <table class="taxonomy-table">
+                <tbody>
+                    {% if plant.kingdom %}<tr><th>Kingdom</th><td>{{ plant.kingdom }}</td></tr>{% endif %}
+                    {% if plant.family %}<tr><th>Family</th><td>{{ plant.family.name }}</td></tr>{% endif %}
+                    {% if plant.order %}<tr><th>Order</th><td>{{ plant.order }}</td></tr>{% endif %}
+                    {% if plant.genus %}<tr><th>Genus</th><td><em>{{ plant.genus }}</em></td></tr>{% endif %}
+                    {% if plant.species %}<tr><th>Species</th><td><em>{{ plant.species }}</em></td></tr>{% endif %}
+                    <tr><th>Scientific Name</th><td><em>{{ plant.scientific_name }}</em></td></tr>
+                </tbody>
+            </table>
+        </section>
+        {% endif %}
+
+        <!-- ── Section 3: Morphology & Habitat ─────────────────────────── -->
+        {% if plant.morphology or plant.habitat or plant.distribution %}
+        <section id="morphology" class="plant-section">
+            <div class="section-marker">✦ III</div>
+            <h2 class="plant-section-title">Morphology &amp; Habitat</h2>
+            {% if plant.morphology %}
+            <h3 class="plant-subsection">Physical Description</h3>
+            <div class="plant-prose">{{ plant.morphology|linebreaks }}</div>
+            {% endif %}
+            {% if plant.habitat %}
+            <h3 class="plant-subsection">Habitat</h3>
+            <div class="plant-prose">{{ plant.habitat|linebreaks }}</div>
+            {% endif %}
+            {% if plant.distribution %}
+            <h3 class="plant-subsection">Distribution</h3>
+            <div class="plant-prose">{{ plant.distribution|linebreaks }}</div>
+            {% endif %}
+            {% if plant.bloom_season %}
+            <p class="plant-bloom"><strong>Blooms:</strong> {{ plant.bloom_season }}</p>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- ── Section 4: Practical Knowledge ──────────────────────────── -->
+        {% if has_practical %}
+        <section id="uses" class="plant-section">
+            <div class="section-marker">✦ IV</div>
+            <h2 class="plant-section-title">Uses &amp; Preparation</h2>
+            {% if plant.uses_medicinal %}
+            <h3 class="plant-subsection plant-subsection--medicinal">🌡 Medicinal Uses</h3>
+            <div class="plant-prose">{{ plant.uses_medicinal|linebreaks }}</div>
+            {% endif %}
+            {% if plant.uses_culinary %}
+            <h3 class="plant-subsection plant-subsection--culinary">🍃 Culinary Uses</h3>
+            <div class="plant-prose">{{ plant.uses_culinary|linebreaks }}</div>
+            {% endif %}
+            {% if plant.uses_other %}
+            <h3 class="plant-subsection">Other Uses</h3>
+            <div class="plant-prose">{{ plant.uses_other|linebreaks }}</div>
+            {% endif %}
+            {% if plant.preparation_methods %}
+            <h3 class="plant-subsection">Preparation Methods</h3>
+            <div class="plant-prose preparation-block">{{ plant.preparation_methods|linebreaks }}</div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- ── Section 5: Warnings ──────────────────────────────────────── -->
+        {% if plant.warnings %}
+        <section id="warnings" class="plant-section plant-section--warning">
+            <div class="section-marker">⚠</div>
+            <h2 class="plant-section-title">Warnings &amp; Contraindications</h2>
+            <div class="plant-prose warning-prose">{{ plant.warnings|linebreaks }}</div>
+        </section>
+        {% endif %}
+
+        <!-- ── Section 6: Field Notes / Observations ────────────────────── -->
+        {% if has_observational %}
+        <section id="observations" class="plant-section plant-section--personal">
+            <div class="section-marker">✦ V</div>
+            <h2 class="plant-section-title">Field Notes</h2>
+            {% if plant.field_notes %}
+            <div class="plant-prose field-notes">{{ plant.field_notes|linebreaks }}</div>
+            {% endif %}
+            {% if plant.locations_observed %}
+            <h3 class="plant-subsection">Locations Observed</h3>
+            <div class="plant-prose">{{ plant.locations_observed|linebreaks }}</div>
+            {% endif %}
+            {% if plant.seasonal_patterns %}
+            <h3 class="plant-subsection">Seasonal Patterns</h3>
+            <div class="plant-prose">{{ plant.seasonal_patterns|linebreaks }}</div>
+            {% endif %}
+
+            <!-- Observation Logs -->
+            {% if observations %}
+            <h3 class="plant-subsection">Observation Log</h3>
+            <div class="obs-log">
+                {% for obs in observations %}
+                <div class="obs-entry">
+                    <div class="obs-meta">
+                        <time class="obs-date">{{ obs.date|date:"j F Y" }}</time>
+                        <span class="obs-location">📍 {{ obs.location }}</span>
+                    </div>
+                    <p class="obs-notes">{{ obs.notes }}</p>
+                    {% if obs.image %}
+                    <img src="{{ obs.image.url }}" alt="Observation" class="obs-image">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- ── Section 7: Image Gallery ─────────────────────────────────── -->
+        {% if images %}
+        <section id="gallery" class="plant-section">
+            <div class="section-marker">✦ VI</div>
+            <h2 class="plant-section-title">Gallery</h2>
+            <div class="plant-gallery">
+                {% for img in images %}
+                <figure class="gallery-figure">
+                    <img src="{{ img.image.url }}" alt="{{ img.caption|default:plant.scientific_name }}">
+                    {% if img.caption %}<figcaption>{{ img.caption }}{% if img.credit %} — {{ img.credit }}{% endif %}</figcaption>{% endif %}
+                </figure>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ── Section 8: Symbolic Layer ────────────────────────────────── -->
+        {% if has_symbolic %}
+        <section id="symbolic" class="plant-section plant-section--symbolic">
+            <div class="section-marker">✦ VII</div>
+            <h2 class="plant-section-title">Symbolism &amp; Personal Reflections</h2>
+            {% if plant.symbolism %}
+            <h3 class="plant-subsection">Symbolism</h3>
+            <div class="plant-prose">{{ plant.symbolism|linebreaks }}</div>
+            {% endif %}
+            {% if plant.energetic_qualities %}
+            <h3 class="plant-subsection">Energetic Qualities</h3>
+            <div class="plant-prose">{{ plant.energetic_qualities|linebreaks }}</div>
+            {% endif %}
+            {% if plant.personal_reflections %}
+            <h3 class="plant-subsection">Personal Reflections</h3>
+            <div class="plant-prose personal-reflections">{{ plant.personal_reflections|linebreaks }}</div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- ── Related Plants ────────────────────────────────────────────── -->
+        {% if related_plants %}
+        <section class="plant-section">
+            <h2 class="plant-section-title">Related Species</h2>
+            <div class="related-plants-grid">
+                {% for rp in related_plants %}
+                <a href="{{ rp.get_absolute_url }}" class="related-plant-card">
+                    {% if rp.primary_image %}<img src="{{ rp.primary_image.url }}" alt="{{ rp.scientific_name }}">{% else %}<div class="related-plant-placeholder">🌿</div>{% endif %}
+                    <div>
+                        <strong>{{ rp.primary_common_name }}</strong>
+                        <em>{{ rp.scientific_name }}</em>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ── Blog Connection ───────────────────────────────────────────── -->
+        {% if related_posts %}
+        <section id="writings" class="plant-section plant-section--writings">
+            <div class="section-marker">✦</div>
+            <h2 class="plant-section-title">From the Journal</h2>
+            <p class="section-intro">Entries written about or inspired by this plant.</p>
+            <div class="writings-list">
+                {% for post in related_posts %}
+                <a href="{{ post.get_absolute_url }}" class="writing-link">
+                    <span class="writing-title">{{ post.title }}</span>
+                    <span class="writing-meta">{% if post.published_at %}{{ post.published_at|date:"j F Y" }}{% endif %} · {{ post.reading_time }} min</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </div><!-- /.plant-content -->
+</div><!-- /.plant-full -->
+{% endblock %}

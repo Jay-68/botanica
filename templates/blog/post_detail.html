@@ -1,0 +1,130 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ post.title }} — Botanica{% endblock %}
+{% block nav_blog %}active{% endblock %}
+{% block body_class %}blog-section post-page{% endblock %}
+
+{% block content %}
+<article class="post-full">
+
+    <!-- Header -->
+    <header class="post-full-header">
+        {% if post.category %}
+        <a href="{{ post.category.get_absolute_url }}" class="post-category post-category--large">{{ post.category.name }}</a>
+        {% endif %}
+        {% if post.series %}
+        <div class="post-series-badge">
+            Part of: <a href="{{ post.series.get_absolute_url }}">{{ post.series.name }}</a>
+        </div>
+        {% endif %}
+        <h1 class="post-full-title">{{ post.title }}</h1>
+        <div class="post-full-meta">
+            {% if post.author %}
+            <span class="post-author">{{ post.author.get_full_name|default:post.author.username }}</span>
+            <span class="meta-sep">·</span>
+            {% endif %}
+            {% if post.published_at %}
+            <time class="post-date">{{ post.published_at|date:"j F Y" }}</time>
+            <span class="meta-sep">·</span>
+            {% endif %}
+            <span class="reading-time">{{ post.reading_time }} min read</span>
+            <span class="meta-sep">·</span>
+            <span class="post-tone">{{ post.get_tone_display }}</span>
+        </div>
+        {% if post.excerpt %}
+        <p class="post-full-excerpt">{{ post.excerpt }}</p>
+        {% endif %}
+    </header>
+
+    <!-- Featured Image -->
+    {% if post.featured_image %}
+    <figure class="post-full-image">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+        {% if post.featured_image_caption %}
+        <figcaption>{{ post.featured_image_caption }}</figcaption>
+        {% endif %}
+    </figure>
+    {% endif %}
+
+    <!-- Series Navigator -->
+    {% if series_posts %}
+    <nav class="series-nav">
+        <p class="series-nav-label">Series: <strong>{{ post.series.name }}</strong></p>
+        <ol class="series-nav-list">
+            {% for sp in series_posts %}
+            <li class="{% if sp.pk == post.pk %}series-nav-current{% endif %}">
+                <a href="{{ sp.get_absolute_url }}">{{ sp.title }}</a>
+            </li>
+            {% endfor %}
+        </ol>
+    </nav>
+    {% endif %}
+
+    <!-- Body -->
+    <div class="post-full-body">
+        {{ post.body|linebreaks }}
+    </div>
+
+    <!-- Tags -->
+    {% if post.tags.all %}
+    <div class="post-full-tags">
+        <span class="tags-label">Tagged:</span>
+        {% for tag in post.tags.all %}
+        <a href="{{ tag.get_absolute_url }}" class="tag-pill">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ✦ Grimoire Connection — Referenced Plants -->
+    {% if referenced_plants %}
+    <section class="referenced-plants">
+        <div class="referenced-plants-header">
+            <span class="referenced-plants-icon">🌿</span>
+            <h2 class="referenced-plants-title">Referenced Plants</h2>
+        </div>
+        <p class="referenced-plants-sub">Plants mentioned or explored in this entry. Open their grimoire pages for deeper knowledge.</p>
+        <div class="plant-refs-grid">
+            {% for plant in referenced_plants %}
+            <a href="{{ plant.get_absolute_url }}" class="plant-ref-card">
+                {% if plant.primary_image %}
+                <img src="{{ plant.primary_image.url }}" alt="{{ plant.scientific_name }}" class="plant-ref-img">
+                {% else %}
+                <div class="plant-ref-img plant-ref-img--placeholder">🌿</div>
+                {% endif %}
+                <div class="plant-ref-info">
+                    <span class="plant-ref-common">{{ plant.primary_common_name }}</span>
+                    <span class="plant-ref-scientific">{{ plant.scientific_name }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+</article>
+
+<!-- Related Posts -->
+{% if related_posts %}
+<section class="related-posts">
+    <div class="related-posts-inner">
+        <h2 class="section-heading">Related Entries</h2>
+        <div class="related-posts-grid">
+            {% for rp in related_posts %}
+            <article class="post-card post-card--small">
+                <div class="post-card-body">
+                    <div class="post-card-meta">
+                        {% if rp.published_at %}<time>{{ rp.published_at|date:"j F Y" }}</time>{% endif %}
+                        <span class="meta-sep">·</span>
+                        <span>{{ rp.reading_time }} min</span>
+                    </div>
+                    <h3 class="post-card-title"><a href="{{ rp.get_absolute_url }}">{{ rp.title }}</a></h3>
+                    {% if rp.excerpt %}<p class="post-card-excerpt">{{ rp.excerpt|truncatechars:120 }}</p>{% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
