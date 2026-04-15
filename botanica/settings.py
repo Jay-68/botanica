@@ -3,14 +3,18 @@ Botanica Project Settings
 """
 import os
 from pathlib import Path
+from urllib.parse import urlparse
+
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = 'django-insecure-botanica-change-this-in-production-abc123xyz'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-botanica-change-this-in-production-abc123xyz')
 
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in {'1', 'true', 'yes'}
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,14 +58,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'botanica.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME':'Botanica',
-        'USER':'postgres',
-        'PASSWORD':'yV4YPe,LTnGjQWW&',
-        'HOST':'db.qkqloppnutrkljzgmbfl.supabase.co',
-        'PORT':'5432',
-        
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "neondb",
+        "USER": "neondb_owner",
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": "ep-snowy-silence-ab7eaame.eu-west-2.aws.neon.tech",
+        "PORT": "5432",
+        "OPTIONS": {"sslmode": "require"},
     }
 }
 
