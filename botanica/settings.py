@@ -113,4 +113,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/admin/login/'
 
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = [‘https://web-production-6a521.up.railway.app/’]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://web-production-6a521.up.railway.app/"
+        ]
