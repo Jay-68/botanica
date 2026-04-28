@@ -1,1 +1,1 @@
-web: gunicorn botanica.wsgi:application
+web: gunicorn botanica.wsgi:application --bind 0.0.0.0:$PORT

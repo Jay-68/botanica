@@ -4,20 +4,27 @@ Botanica Project Settings
 import os
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl
-import dj_database_url
 
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# load_dotenv(BASE_DIR / '.env')
+# load environment variables from .env in local development
 load_dotenv()
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in {'1', 'true', 'yes'}
 
-DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in {'1', 'true', 'yes'}
+SECRET_KEY_ENV = os.getenv('DJANGO_SECRET_KEY')
+if SECRET_KEY_ENV:
+    SECRET_KEY = SECRET_KEY_ENV
+elif DEBUG:
+    SECRET_KEY = 'django-insecure-local-dev-key'
+else:
+    raise ImproperlyConfigured('DJANGO_SECRET_KEY environment variable is required in production.')
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -104,3 +111,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/admin/login/'
+
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = [‘https://web-production-6a521.up.railway.app/’]

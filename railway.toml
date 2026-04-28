@@ -2,4 +2,5 @@
 buildCommand = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
 
 [deploy]
-startCommand = "python manage.py migrate && gunicorn botanica.wsgi:application"
+releaseCommand = "python manage.py migrate"
+startCommand = "gunicorn botanica.wsgi:application --bind 0.0.0.0:$PORT"
