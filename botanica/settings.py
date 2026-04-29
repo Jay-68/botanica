@@ -24,7 +24,19 @@ elif DEBUG:
 else:
     raise ImproperlyConfigured('DJANGO_SECRET_KEY environment variable is required in production.')
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
+# Parse ALLOWED_HOSTS from environment variable
+# Get the comma-separated list of allowed hosts, default to '*' if not set
+allowed_hosts_str = os.getenv('DJANGO_ALLOWED_HOSTS', '*')
+
+# Split the string by commas to get individual host entries
+host_list = allowed_hosts_str.split(',')
+
+# Create ALLOWED_HOSTS list by stripping whitespace and filtering out empty entries
+ALLOWED_HOSTS = []
+for host in host_list:
+    clean_host = host.strip()  # Remove leading/trailing whitespace
+    if clean_host:  # Only include non-empty hosts
+        ALLOWED_HOSTS.append(clean_host)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,17 +82,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'botanica.wsgi.application'
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "neondb",
-        "USER": "neondb_owner",
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": "ep-snowy-silence-ab7eaame.eu-west-2.aws.neon.tech",
-        "PORT": "5432",
-        "OPTIONS": {"sslmode": "require"},
+# Database: use DATABASE_URL in production, fallback to SQLite locally
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -97,15 +115,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -116,7 +126,7 @@ LOGIN_URL = '/admin/login/'
 
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [
-        "https://web-production-6a521.up.railway.app/"
+        "https://web-production-6a521.up.railway.app/",
         ]
     
 CLOUDINARY_STORAGE = {
