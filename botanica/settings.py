@@ -136,5 +136,8 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/' 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://web-production-6a521.up.railway.app/',
+    'https://web-production-6a521.up.railway.app',
 ]
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
