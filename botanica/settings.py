@@ -143,3 +143,7 @@ else:
     # Production: use Cloudinary
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/' 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-6a521.up.railway.app/',
+]
